@@ -11,12 +11,11 @@ phases:
       - aws --version
       - pip install --upgrade pip
       - pip install --upgrade awscli
-      - sudo apt-get install git -y
       - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
 
   build:
     commands:
-      - export HEROKU_API_KEY=$(aws aws ssm get-parameter --name "heroku-login-api")
+      - export HEROKU_API_KEY=$(aws aws ssm get-parameter --name "heroku-login-api" --region eu-west-1)
       - heroku login
       - heroku container:login
       - heroku container:push web
