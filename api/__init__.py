@@ -5,6 +5,10 @@ import flask
 import pickle
 import torch
 import numpy as np
+from PIL import Image
+import requests
+from io import BytesIO
+from torchvision import transforms
 
 MODEL_PATH = './api/model_dir/plant-disease-model-cpu.pt'
 # outline output classes
@@ -75,10 +79,30 @@ class PredictionService:
                 one prediction per row in the dataframe"""
 
         print("Prediction Data: ")
+        cls.load_model()
         output = cls.model(prediction_input)
         _, preds = torch.max(output, 1)
         class_index = int(preds.numpy())
         return CLEANED_CLASS_NAMES[class_index]
+
+
+input_image_transform_fn = transforms.Compose([
+    transforms.RandomResizedCrop(224),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
+
+
+def load_image_bytes(image_url: str):
+    """
+    :param image_url:
+    :return:
+    """
+    response = requests.get(image_url)
+    image = Image.open(BytesIO(response.content))
+    inputs = input_image_transform_fn(image)
+    return inputs[None]
 
 
 def create_app(test_config=None):
@@ -118,11 +142,23 @@ def create_app(test_config=None):
         prediction = 'hello world'
         print(f'Request Content Type: {flask.request.content_type}')
         if flask.request.content_type == 'application/json':
-            prediction = {'payload': 'prediction'}
+
+            data = json.loads(flask.request.data.decode('utf-8'))
         else:
             return flask.Response(
-                response='This predictor only supports JSON or CSV data.  data is preferred.',
+                response='This predictor only supports Image URL.',
                 status=415, mimetype='text/plain'
+            )
+        if 'ImageUrl' in data:
+            print("Accepts Image Url")
+            image_url = data['ImageUrl']
+            image_tensor = load_image_bytes(image_url)
+            predicted_class = PredictionService.predict(image_tensor)
+            prediction = {'prediction': predicted_class}
+        else:
+            return flask.Response(
+                response=json.dumps({'errorMessage': 'Missing ImageUrl key in request payload.'}),
+                status=415, mimetype='application/json'
             )
         return flask.Response(response=json.dumps(prediction), status=200, mimetype='application/json')
     return app
