@@ -25,5 +25,5 @@ Disease Finder Machine Learning API | Facebook AI Hackathon - PyTorch
 
 ### Model Usage
 ```bash
-$ curl -XPOST -H "Content-Type: application/json" -d '{ "prediction": "Cherry (including sour) healthy" }' https://disease-finder-api.herokuapp.com/invocations 
+$ curl -XPOST -H "Content-Type: application/json" -d '{ "ImageUrl": "https://www.sciencesource.com/Doc/TR1_WATERMARKED/7/5/4/f/SS2839121.jpg?d63644905319" }' https://disease-finder-api.herokuapp.com/invocations 
 ```
