@@ -10,4 +10,4 @@ ENV FLASK_APP=api
 ENV FLASK_ENV=production
 
 WORKDIR /opt/program/code/
-CMD ["flask", "run", "--port", "${PORT//[^0-9]/}"]
+CMD ["bash", "run.sh", "$PORT"]
