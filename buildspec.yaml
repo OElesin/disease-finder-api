@@ -5,13 +5,17 @@ env:
     APP_NAME: disease-finder-api
 
 phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+
   pre_build:
     commands:
       - set eux
       - aws --version
       - pip install --upgrade pip
       - pip install --upgrade awscli
-      - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+      - npm install -g heroku-cli
 
   build:
     commands:
