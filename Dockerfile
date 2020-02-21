@@ -9,5 +9,5 @@ COPY api /opt/program/code/api
 ENV FLASK_APP=api
 ENV FLASK_ENV=production
 
-WORKDIR /opt/program/code/
+WORKDIR /opt/program/code/api
 CMD ["bash", "run.sh", "$PORT"]
