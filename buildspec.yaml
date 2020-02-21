@@ -15,7 +15,7 @@ phases:
       - aws --version
       - pip install --upgrade pip
       - pip install --upgrade awscli
-      - npm install -g heroku-cli
+      - npm install -g heroku
 
   build:
     commands:
