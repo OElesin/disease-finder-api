@@ -10,4 +10,4 @@ ENV FLASK_APP=api
 ENV FLASK_ENV=production
 
 WORKDIR /opt/program/code/api
-CMD ["bash", "run.sh", "$PORT"]
+CMD ["bash", "run.sh"]

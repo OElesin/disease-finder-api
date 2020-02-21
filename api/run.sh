@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-EXEC_PORT=${1//[^0-9]/}
 
-echo "Passed Variable: ${1}"
+echo "Passed Variable: ${PORT}"
+EXEC_PORT=${PORT//[^0-9]/}
+
 echo "Running Port: ${EXEC_PORT}"
 
 flask run --port ${EXEC_PORT}
