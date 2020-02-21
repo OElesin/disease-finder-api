@@ -19,7 +19,7 @@ phases:
 
   build:
     commands:
-      - export HEROKU_API_KEY=$(aws aws ssm get-parameter --name "heroku-login-api" --region eu-west-1)
+      - export HEROKU_API_KEY=$(aws ssm get-parameter --name "heroku-login-api" --region eu-west-1)
       - heroku login
       - heroku container:login
       - heroku container:push web
