@@ -5,11 +5,15 @@ Disease Finder Machine Learning API | Facebook AI Hackathon - PyTorch
 
 
 ### Description
+This repository contains source code for the pytorch backend we built for this backend.  If you're looking for the mobile app source code, please [go here](https://github.com/abiodunjames/DiseaseFinderApp). 
 
 ### Built With
 - **Infrastructure**: [Amazon Web Services SageMaker](https://aws.amazon.com/sagemaker/)
 - **Deep Learning Library**: [PyTorch](https://pytorch.org/), transfer learning with pretrained [ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth)
 - **Training Dataset**: [PlantVillage Disease Classification Challenge - Color Images](https://zenodo.org/record/1204914#.Xk93uBNKjPB)
+- **React Native**[React Native](https://facebook.github.io/react-native/)
+
+![Image](https://res.cloudinary.com/samueljames/image/upload/v1582483840/Untitled_Diagram_7.png)
 
 ### Team Members:
 - [Samuel James](https://www.linkedin.com/in/samuel-james-abiodun/?originalSubdomain=de)
