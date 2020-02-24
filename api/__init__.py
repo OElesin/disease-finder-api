@@ -5,6 +5,7 @@ import flask
 import pickle
 import torch
 import numpy as np
+import base64
 from PIL import Image
 import requests
 from io import BytesIO
@@ -94,15 +95,38 @@ input_image_transform_fn = transforms.Compose([
 ])
 
 
-def load_image_bytes(image_url: str):
+def load_image_bytes(image_bytes):
     """
-    :param image_url:
+    :param image_bytes:
     :return:
     """
-    response = requests.get(image_url)
-    image = Image.open(BytesIO(response.content))
+    image = Image.open(BytesIO(image_bytes))
     inputs = input_image_transform_fn(image)
     return inputs[None]
+
+
+def is_base64(s):
+    try:
+        return base64.b64encode(base64.b64decode(s)) == s
+    except Exception:
+        return False
+
+
+def error_response(message=None, error_code=415):
+    return flask.Response(
+        response=json.dumps({'errorMessage': message or 'Something Went wrong over the wire'}),
+        status=error_code, mimetype='application/json'
+    )
+
+
+def get_prediction(image_bytes):
+    """
+    :param image_bytes:
+    :return:
+    """
+    image_tensor = load_image_bytes(image_bytes)
+    predicted_class = PredictionService.predict(image_tensor)
+    return {'prediction': predicted_class}
 
 
 def create_app(test_config=None):
@@ -140,25 +164,29 @@ def create_app(test_config=None):
         :return:
         """
         prediction = 'hello world'
+        request_input = flask.request.data.decode('utf-8')
         print(f'Request Content Type: {flask.request.content_type}')
         if flask.request.content_type == 'application/json':
-
-            data = json.loads(flask.request.data.decode('utf-8'))
+            data = json.loads(request_input)
         else:
-            return flask.Response(
-                response='This predictor only supports Image URL.',
-                status=415, mimetype='text/plain'
-            )
+            return error_response('This predictor only supports Image URL or Image Bytes base64 string.')
         if 'ImageUrl' in data:
             print("Accepts Image Url")
             image_url = data['ImageUrl']
-            image_tensor = load_image_bytes(image_url)
-            predicted_class = PredictionService.predict(image_tensor)
-            prediction = {'prediction': predicted_class}
+            print(f"Image URL: {image_url}")
+            image_bytes = requests.get(image_url)
+            prediction = get_prediction(image_bytes.content)
+            return flask.Response(response=json.dumps(prediction), status=200, mimetype='application/json')
+        elif 'ImageBytes' in data:
+            print("Accepts Image Bytes")
+            image_base64_string = data['ImageBytes']
+            base64_check = is_base64(image_base64_string)
+            if base64_check:
+                image_bytes = base64.decodebytes(image_base64_string.encode())
+                prediction = get_prediction(image_bytes)
+                return flask.Response(response=json.dumps(prediction), status=200, mimetype='application/json')
+            else:
+                return error_response('Error decoding base64 image bytes.')
         else:
-            return flask.Response(
-                response=json.dumps({'errorMessage': 'Missing ImageUrl key in request payload.'}),
-                status=415, mimetype='application/json'
-            )
-        return flask.Response(response=json.dumps(prediction), status=200, mimetype='application/json')
+            return error_response('Missing ImageUrl key in request payload.')
     return app
