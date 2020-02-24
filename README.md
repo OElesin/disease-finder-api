@@ -4,8 +4,6 @@ Disease Finder Machine Learning API | Facebook AI Hackathon - PyTorch
 ![Build Status](https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiUDQ5ZnlQYm1QUlNNdURURlVkY0lobDR4Q0w4eitzcjNUTTRFRit5bUZjYTRkZWhieERvU1lHcHY0T1ZuVE9GWnNmcTQ3aWhadVJybGlEQndCZWNENHU0PSIsIml2UGFyYW1ldGVyU3BlYyI6ImFWYXhYeXpHd0huZkNvZkUiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
 
-### Description
-
 ### Built With
 - **Infrastructure**: [Amazon Web Services SageMaker](https://aws.amazon.com/sagemaker/)
 - **Deep Learning Library**: [PyTorch](https://pytorch.org/), transfer learning with pretrained [ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth)
@@ -17,19 +15,22 @@ Disease Finder Machine Learning API | Facebook AI Hackathon - PyTorch
 - [Olalekan Elesin](https://www.linkedin.com/in/elesinolalekan/)
 
 
-### Implementation
-- Model Training
-    - Training Data: For this project, we made use of the [PlantVillage Disease Classification Challenge - Color Images](https://zenodo.org/record/1204914#.Xk93uBNKjPB). Containing
+### Description and Implementation
+- **Model Training**
+    - **Training Data**: For this project, we made use of the [PlantVillage Disease Classification Challenge - Color Images](https://zenodo.org/record/1204914#.Xk93uBNKjPB). Containing
     38 classes of plant diseases. One the limitations of the dataset is that it only contains images of leaves, as such is not valuable when predicting diseases on fruits or farm produce.
     This limitation for us informs the next step of DiseaseFinder. 
-    - Deep Learning Model: Our starting point was to follow the [PyTorch image classification tutorial](https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html). We made use of
+    - **Deep Learning Model**: Our starting point was to follow the [PyTorch image classification tutorial](https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html). We made use of
     ResNet18 from the PyTorch model zoo.
-    - Model Training Infrastructure: Our model was trained on [Amazon SageMaker Notebooks](https://docs.aws.amazon.com/sagemaker/latest/dg/nbi.html) [GPU instance, ml.p2.xlarge](https://aws.amazon.com/sagemaker/pricing/instance-types/).
+    - **Model Training Infrastructure**: Our model was trained on [Amazon SageMaker Notebooks](https://docs.aws.amazon.com/sagemaker/latest/dg/nbi.html) [GPU instance, ml.p2.xlarge](https://aws.amazon.com/sagemaker/pricing/instance-types/).
+    You can find the training [Jupyter Notebook here](notebooks/PlantDiseaseDetectionV2.ipynb).
     Once the model was trained on GPU, we saved the model as a pickle object in both [GPU](./api/model_dir/plant-disease-model-gpu.pt) and [CPU](./api/model_dir/plant-disease-model-cpu.pt) versions.
 
-- Model Deployment: For the purposes of the hackathon, we realized that it would be expensive to have real-time inference hosted on AWS SageMaker. Hence,
-we decided to host the model with [Heroku Containers](https://devcenter.heroku.com/articles/container-registry-and-runtime), however, this poses latency challenges. Once we see traction with the solution,
-deployment on Amazon SageMaker would be next. In addition to hosting the model on Heroku, we implemented a continuous deployment pipeline with [Amazon CodeBuild](https://aws.amazon.com/codebuild/), with the goal of embracing [Continuous Delivery for Machine Learning](https://martinfowler.com/articles/cd4ml.html).
+- **Model Deployment**: 
+    - **Hosting**: For the purposes of the hackathon, we realized that it would be expensive to have real-time inference hosted on AWS SageMaker. Hence,
+    we decided to host the model with [Heroku Containers](https://devcenter.heroku.com/articles/container-registry-and-runtime) running with [Python Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/factory/) [API](api/__init__.py), however, this poses latency challenges. Once we see traction with the solution,
+    deployment on Amazon SageMaker would be next. 
+    - **Continuous Deployment**: In addition to hosting the model on Heroku, we implemented a continuous deployment pipeline with [Amazon CodeBuild](https://aws.amazon.com/codebuild/), with the goal of embracing [Continuous Delivery for Machine Learning](https://martinfowler.com/articles/cd4ml.html).
     
 
 ### Challenges:
