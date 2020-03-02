@@ -1,11 +1,25 @@
 <template>
-  <div>
+  <div class="">
+<el-menu
+  :default-active="activeIndex2"
+  class="el-menu-demo"
+  mode="horizontal"
+  @select="handleSelect"
+  background-color="#545c64"
+  text-color="#fff"
+  active-text-color="#ffd04b">
+  <el-menu-item index="1">Home</el-menu-item>
+  </el-menu>
+
+<br/>
+
     <el-upload
       action="#"
       list-type="picture-card"
-      :auto-upload="false"
-      :on-change="classify"
       :on-preview="handlePictureCardPreview"
+      :auto-upload="false"
+      :multiple="true"
+      :on-change="classify"
       :on-remove="handleRemove"
     >
       <i class="el-icon-plus"></i>
@@ -13,17 +27,44 @@
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt />
     </el-dialog>
+
+<br/>
+<el-steps :active="active" finish-status="success">
+  <el-step title="Upload Images"></el-step>
+  <el-step title="Classify Images"></el-step>
+  <el-step title="See Results"></el-step>
+</el-steps>
+
+<el-row>
+  <el-col v-bind:body-style="{ padding: '10px' }" :span="6" v-for="(file, index) in files"  :key="file" :offset="index > 0 ? 0 : 0">
+    <el-card :body-style="{ margin: '10px'}">
+      <img  :src="file.url">
+        <div style="padding: 14px;">
+        <h2>{{file.prediction}}</h2>
+        <div class="bottom clearfix">
+              <div>
+                    <span v-if="status"  v-bind:class="[status? 'dot dot-success': 'dot dot-error']"></span>
+              </div>
+        </div>
+      </div>
+    </el-card>
+  </el-col>
+</el-row>
+
   </div>
 </template>
 <script>
 import ImageLoader from "../plugins/imageloader";
 import { InferenceSession, Tensor } from "onnxjs";
+import getClass from "../plugins/classes";
 
 export default {
   data() {
     return {
       dialogImageUrl: "",
-      dialogVisible: false
+      dialogVisible: false,
+      files: [],
+      classified:[],
     };
   },
   methods: {
@@ -31,20 +72,16 @@ export default {
       console.log(file, fileList);
     },
     handlePictureCardPreview(file) {
-      console.log(file)
       this.dialogImageUrl = file.url;
-      console.log(file.url)
       this.dialogVisible = true;
     },
     async classify(file) {
-      console.log(file)
       const url = file.url;
-      const imageSize = 124;
-      const session = new InferenceSession({ backendHint: "webgl" });
+      const imageSize = 224;
+      const session = new InferenceSession();
       await session.loadModel("/torch_model.onnx");
       const imageLoader = new ImageLoader(imageSize, imageSize);
       const imageData = await imageLoader.getImageData(url);
-      console.log(imageData);
 
       const width = imageSize;
       const height = imageSize;
@@ -61,10 +98,50 @@ export default {
       ]);
       // Run model with Tensor inputs and get the result.
       const outputMap = await session.run([inputTensor]);
-      console.log(outputMap);
       const outputData = outputMap.values().next().value.data;
-      console.log(outputData)
+      const prediction = this.printMatches(outputData);
+      const status = prediction.includes("healthy");
+      const item  = { status, prediction, url };
+      if(!this.files.includes(item)) {
+        this.files.push(item)
+      }
+    },
+    printMatches(data) {
+      let outputClasses = [];
+      if (!data || data.length === 0) {
+        const empty = [];
+        for (let i = 0; i < 5; i++) {
+          empty.push({ name: "-", probability: 0, index: 0 });
+        }
+        outputClasses = empty;
+      } else {
+        outputClasses = getClass(data, 1);
+      }
+
+      return outputClasses[0];
     }
   }
 };
 </script>
+
+<style scoped>
+.success{
+  border:1px solid springgreen
+}
+.error {
+  border: 1px solid red
+}
+.dot {
+  height: 25px;
+  width: 25px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot-error{
+background-color:springgreen
+}
+.dot-success {
+background-color:red
+}
+</style>

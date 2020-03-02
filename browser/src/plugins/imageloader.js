@@ -2,6 +2,7 @@
  * Loads an image from url
  */
 import ndarray from "ndarray";
+import ops  from "ndarray-ops"
 
 class ImageLoader {
   constructor(imageWidth, imageHeight) {
@@ -47,19 +48,19 @@ class ImageLoader {
     ]);
 
     // Normalize 0-255 to (-1)-1
-    ndarray.ops.divseq(dataFromImage, 128.0);
-    ndarray.ops.subseq(dataFromImage, 1.0);
+    ops.divseq(dataFromImage, 128.0);
+    ops.subseq(dataFromImage, 1.0);
 
     // Realign imageData from [224*224*4] to the correct dimension [1*3*224*224].
-    ndarray.ops.assign(
+    ops.assign(
       dataProcessed.pick(0, 0, null, null),
       dataFromImage.pick(null, null, 2)
     );
-    ndarray.ops.assign(
+    ops.assign(
       dataProcessed.pick(0, 1, null, null),
       dataFromImage.pick(null, null, 1)
     );
-    ndarray.ops.assign(
+    ops.assign(
       dataProcessed.pick(0, 2, null, null),
       dataFromImage.pick(null, null, 0)
     );
