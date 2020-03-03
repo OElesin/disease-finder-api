@@ -22,7 +22,7 @@
       :on-change="classify"
       :on-remove="handleRemove"
     >
-      <i class="el-icon-plus"></i>
+      <i class="el-icon-upload2"></i>
     </el-upload>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt />
@@ -37,14 +37,17 @@
 
 <el-row>
   <el-col v-bind:body-style="{ padding: '10px' }" :span="6" v-for="(file, index) in files"  :key="file" :offset="index > 0 ? 0 : 0">
-    <el-card :body-style="{ margin: '10px'}">
+    <el-card :body-style="{ margin: '10px'}" >
       <img  :src="file.url">
         <div style="padding: 14px;">
         <h2>{{file.prediction}}</h2>
         <div class="bottom clearfix">
               <div>
-                    <span v-if="status"  v-bind:class="[status? 'dot dot-success': 'dot dot-error']"></span>
+                    <span v-bind:class="[file.status ? 'dot dot-success': 'dot dot-error']">
+                      </span>
+                  <p> {{file.status? 'Healthy':'Infected'}}</p>
               </div>
+              
         </div>
       </div>
     </el-card>
@@ -101,7 +104,7 @@ export default {
       const outputData = outputMap.values().next().value.data;
       const prediction = this.printMatches(outputData);
       const status = prediction.includes("healthy");
-      const item  = { status, prediction, url };
+      const item  = { status, prediction , url };
       if(!this.files.includes(item)) {
         this.files.push(item)
       }
@@ -139,9 +142,10 @@ export default {
   display: inline-block;
 }
 .dot-error{
-background-color:springgreen
+  background-color:red
 }
 .dot-success {
-background-color:red
+background-color:springgreen
+
 }
 </style>
